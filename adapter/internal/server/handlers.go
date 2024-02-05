@@ -6,33 +6,12 @@ import (
 	"net/http"
 	"pixie_adapter/internal/dto"
 	"pixie_adapter/internal/pixie"
-	"strconv"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 )
 
-type Server struct {
-	router     *chi.Mux
-	connection *pixie.Connection
-}
-
-func New(connection *pixie.Connection) *Server {
-	r := chi.NewRouter()
-	s := Server{
-		router:     r,
-		connection: connection,
-	}
-	r.Use(middleware.Logger)
-	r.Get("/", s.handleGetState)
-	r.Put("/", s.handleSetState)
-	return &s
-}
-
-func (s *Server) Handler() http.Handler {
-	return s.router
-}
-
+// @title chi-swagger example APIs
+// @version 1.0
+// @description chi-swagger example APIs
+// @BasePath /
 func (s *Server) handleSetState(w http.ResponseWriter, r *http.Request) {
 	var req dto.ClockStateRequest
 	d := json.NewDecoder(r.Body)
@@ -46,6 +25,12 @@ func (s *Server) handleSetState(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(503)
 		return
 	}
+	log.Println(req)
+	_, err = pixie.SetPower(tx, true)
+	if err != nil {
+		log.Printf("Error on enabling: %v\n", err)
+		w.WriteHeader(400)
+	}
 	_, err = pixie.SetColor(tx, req.Color[0], req.Color[1], req.Color[2])
 	if err != nil {
 		log.Printf("Error on setting color: %v\n", err)
@@ -55,6 +40,25 @@ func (s *Server) handleSetState(w http.ResponseWriter, r *http.Request) {
 	_, err = pixie.SetBrightness(tx, req.Brightness)
 	if err != nil {
 		log.Printf("Error on setting brightness: %v\n", err)
+		w.WriteHeader(500)
+		return
+	}
+	w.WriteHeader(200)
+}
+
+// @title Disable
+// @version 1.0
+// @description chi-swagger example APIs
+// @BasePath /
+func (s *Server) handleDisable(w http.ResponseWriter, r *http.Request) {
+	tx := s.connection.Get()
+	if tx == nil {
+		w.WriteHeader(503)
+		return
+	}
+	_, err := pixie.SetPower(tx, false)
+	if err != nil {
+		log.Printf("Error on setting color: %v\n", err)
 		w.WriteHeader(500)
 		return
 	}
@@ -79,15 +83,16 @@ func (s *Server) handleGetState(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
+	enabled, err := pixie.GetPower(tx)
+	if err != nil {
+		log.Printf("Error on reading power state: %v\n", err)
+		w.WriteHeader(500)
+		return
+	}
 	var color dto.ClockColor = colorValue
 	jsonResponse(w, 200, dto.ClockStateResponse{
 		Color:      color.Ints(),
 		Brightness: brightness,
+		Enabled:    enabled,
 	})
-}
-
-func Run(port int, connection *pixie.Connection) {
-	s := New(connection)
-	log.Printf("Starting server")
-	http.ListenAndServe(":"+strconv.Itoa(port), s.Handler())
 }

@@ -12,6 +12,7 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 	if err != nil {
 		log.Printf("Error on formatting json response: %v\n", err)
 	}
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(j)
 }

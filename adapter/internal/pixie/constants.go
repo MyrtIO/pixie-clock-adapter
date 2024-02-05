@@ -19,6 +19,8 @@ const (
 	ActionIndicatorsSetBrightness byte = 1
 	ActionIndicatorsGetColor      byte = 2
 	ActionIndicatorsGetBrightness byte = 3
+	ActionIndicatorsSetPower      byte = 4
+	ActionIndicatorsGetPower      byte = 5
 	// Stopwatch actions
 	ActionStopwatchActivate byte = 0
 )

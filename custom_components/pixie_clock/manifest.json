@@ -1,0 +1,12 @@
+{
+    "domain": "pixie_clock",
+    "name": "Pixie Clock",
+    "issue_tracker": "https://github.com/MyrtIO/pixie-clock-adapter/issues",
+    "documentation": "https://github.com/MyrtIO/pixie-clock-adapter",
+    "requirements": [
+        "async_timeout"
+    ],
+    "codeowners": ["@mishamyrt"],
+    "config_flow": false,
+    "version": "0.0.1"
+}

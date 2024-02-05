@@ -21,6 +21,7 @@ func (c ClockColor) Ints() []int {
 type ClockStateResponse struct {
 	Color      []int `json:"color"`
 	Brightness byte  `json:"brightness"`
+	Enabled    bool  `json:"enabled"`
 }
 
 type ClockStateRequest struct {
