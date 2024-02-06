@@ -15,6 +15,7 @@ from homeassistant.helpers.typing import (
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_HS_COLOR,
+    ATTR_EFFECT,
     COLOR_MODE_HS,
     PLATFORM_SCHEMA,
     LightEntity,
@@ -28,6 +29,12 @@ from .api import PixieAPI
 _LOGGER = getLogger('PixieLight')
 
 SCAN_INTERVAL = timedelta(seconds=10)
+
+effects = [
+    "Static",
+    "Smooth",
+    "Zoom",
+]
 
 # pylint: disable=unused-argument,too-many-instance-attributes
 
@@ -50,18 +57,18 @@ async def async_setup_platform(
 class PixieClock(LightEntity):
     """Pixie Clock light entity"""
 
-    # Constants attributes
     _attr_supported_color_modes: Final[set[str]] = {
         COLOR_MODE_HS,
     }
     _attr_color_mode = COLOR_MODE_HS
-    # State values
     _attr_brightness: int = 255
     _attr_is_on: bool = True
     _attr_available: bool = False
+    _attr_effect_list = effects
+    _attr_effect = effects[0]
+    _attr_hs_color: tuple[float, float] = (0, 0)
     _api: PixieAPI
     _next_state = None
-    _attr_hs_color: tuple[float, float] = (0, 0)
 
     def __init__(self, hass, addr: str):
         self._hass = hass
@@ -89,25 +96,31 @@ class PixieClock(LightEntity):
             self._attr_available = True
             self._attr_hs_color = color_util.color_RGB_to_hs(*state["color"])
             self._attr_brightness = state["brightness"]
+            self._attr_effect = effects[state["effect"]]
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the light on."""
         color = self._attr_hs_color
         brightness = self._attr_brightness
+        effect = self._attr_effect
+        if ATTR_EFFECT in kwargs:
+            effect = kwargs[ATTR_EFFECT]
         if ATTR_HS_COLOR in kwargs:
             color = kwargs[ATTR_HS_COLOR]
         if ATTR_BRIGHTNESS in kwargs:
             brightness = kwargs[ATTR_BRIGHTNESS]
         self._next_state = {
             "color": list(color_util.color_hs_to_RGB(*color)),
-            "brightness": brightness
+            "brightness": brightness,
+            "effect": effects.index(effect)
         }
         self._attr_is_on = True
         self.async_write_ha_state()
         if await self._api.set_state(
             self._next_state["color"],
-            self._next_state["brightness"]
+            self._next_state["brightness"],
+            self._next_state["effect"]
         ):
             self._attr_available = True
             self._attr_is_on = True

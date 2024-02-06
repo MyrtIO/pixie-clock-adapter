@@ -26,6 +26,10 @@ func (l *Lights) SetState(tx myrtio.Transport, request *dto.LightsStateRequest) 
 	if err != nil {
 		return err
 	}
+	_, err = pixie.SetEffect(tx, request.Effect)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -38,6 +42,10 @@ func (l *Lights) GetState(tx myrtio.Transport) (*dto.LightsStateResponse, error)
 	if err != nil {
 		return nil, err
 	}
+	effect, err := pixie.GetEffect(tx)
+	if err != nil {
+		return nil, err
+	}
 	enabled, err := pixie.GetPower(tx)
 	if err != nil {
 		return nil, err
@@ -46,6 +54,7 @@ func (l *Lights) GetState(tx myrtio.Transport) (*dto.LightsStateResponse, error)
 		Color:      bytesToInts(color),
 		Brightness: brightness,
 		Enabled:    enabled,
+		Effect:     effect,
 	}, nil
 }
 

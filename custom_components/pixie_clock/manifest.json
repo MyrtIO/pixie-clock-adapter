@@ -4,7 +4,7 @@
     "issue_tracker": "https://github.com/MyrtIO/pixie-clock-adapter/issues",
     "documentation": "https://github.com/MyrtIO/pixie-clock-adapter",
     "requirements": [
-        "async_timeout"
+      "async_timeout"
     ],
     "codeowners": ["@mishamyrt"],
     "config_flow": false,

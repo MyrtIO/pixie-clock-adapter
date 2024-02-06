@@ -29,12 +29,13 @@ class PixieAPI:
         except Exception: # pylint: disable=broad-except
             return None
     
-    async def set_state(self, color: list[int], brightness: int):
+    async def set_state(self, color: list[int], brightness: int, effect: int):
         try:
             session = self._get_session()
             resp = await session.put(f"{self._addr}/", json={
                 "color": color,
                 "brightness": brightness,
+                "effect": effect,
             })
             _LOGGER.warning(resp.status)
             return resp.status == 200

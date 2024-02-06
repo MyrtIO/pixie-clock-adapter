@@ -45,6 +45,29 @@ func SetBrightness(tx myrtio.Transport, brightness byte) (bool, error) {
 	return resp.Success(), nil
 }
 
+func SetEffect(tx myrtio.Transport, effectCode byte) (bool, error) {
+	resp, err := tx.RunAction(&myrtio.Message{
+		Feature: FeatureIndicators,
+		Action:  ActionIndicatorsSetEffect,
+		Payload: []byte{effectCode},
+	})
+	if err != nil {
+		return false, err
+	}
+	return resp.Success(), nil
+}
+
+func GetEffect(tx myrtio.Transport) (byte, error) {
+	resp, err := tx.RunAction(&myrtio.Message{
+		Feature: FeatureIndicators,
+		Action:  ActionIndicatorsGetEffect,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return resp.Payload[1], nil
+}
+
 func Ping(tx myrtio.Transport) bool {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureSystem,
@@ -67,7 +90,7 @@ func GetColor(tx myrtio.Transport) ([]byte, error) {
 	return resp.SkipStatus(), nil
 }
 
-func GetBrightness(tx myrtio.Transport) (uint8, error) {
+func GetBrightness(tx myrtio.Transport) (byte, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
 		Action:  ActionIndicatorsGetBrightness,

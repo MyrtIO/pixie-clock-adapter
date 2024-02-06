@@ -3,16 +3,19 @@ package app
 import (
 	"net/http"
 	"pixie_adapter/internal/interfaces"
+	"pixie_adapter/pkg/pixie"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
 type Service struct {
-	router   *chi.Mux
-	usecase  interfaces.Usecase
-	provider interfaces.TransportProvider
+	router    *chi.Mux
+	usecase   interfaces.Usecase
+	provider  interfaces.TransportProvider
+	closePing chan struct{}
 }
 
 func New(usecase interfaces.Usecase, provider interfaces.TransportProvider) *Service {
@@ -34,6 +37,22 @@ func (s *Service) Setup() {
 }
 
 func (s *Service) Start(port int) {
+	ticker := time.NewTicker(5 * time.Second)
+	s.closePing = make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				tx := s.provider.Get()
+				if tx != nil {
+					pixie.Ping(tx)
+				}
+			case <-s.closePing:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 	http.ListenAndServe(":"+strconv.Itoa(port), s.Handler())
 }
 
