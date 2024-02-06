@@ -16,3 +16,12 @@ build:
 install:
 	sudo rm -f /usr/local/bin/pixie-adapter
 	sudo cp ./build/pixie-adapter /usr/local/bin/pixie-adapter
+
+.PHONY: lint
+lint:
+	make lint-integration
+
+.PHONY: lint-integration
+lint-integration:
+	ruff check custom_components/
+	pylint custom_components/

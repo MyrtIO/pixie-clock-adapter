@@ -4,7 +4,9 @@ from homeassistant.helpers.typing import (
     ConfigType,
     HomeAssistantType,
 )
+
 from .const import DOMAIN
+
 
 async def async_setup(hass: HomeAssistantType, config: ConfigType) -> bool:
     """Setup Pixie Clock platform"""
