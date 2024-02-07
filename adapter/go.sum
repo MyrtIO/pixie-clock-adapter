@@ -1,5 +1,5 @@
-github.com/MyrtIO/myrtio-go v0.1.1 h1:7/HX43zAK6eqslwnS6vSxqDKnRXaN8EJsHXwL9EHhbI=
-github.com/MyrtIO/myrtio-go v0.1.1/go.mod h1:RWiJ7aYQbcj9rfiJQ36OdQ5hw20WXf1wOsmRcRyLe4A=
+github.com/MyrtIO/myrtio-go v0.1.2 h1:eV3JVHNE9kBb2TeSz5Skwqw+TgrtcBQCkukTu8HP8dk=
+github.com/MyrtIO/myrtio-go v0.1.2/go.mod h1:RWiJ7aYQbcj9rfiJQ36OdQ5hw20WXf1wOsmRcRyLe4A=
 github.com/creack/goselect v0.1.2 h1:2DNy14+JPjRBgPzAd1thbQp4BSIihxcBf0IXhQXDRa0=
 github.com/creack/goselect v0.1.2/go.mod h1:a/NhLweNvqIYMuxcMOuWY516Cimucms3DglDzQP3hKY=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

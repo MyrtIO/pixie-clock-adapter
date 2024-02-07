@@ -3,7 +3,7 @@ module pixie_adapter
 go 1.21.4
 
 require (
-	github.com/MyrtIO/myrtio-go v0.1.1
+	github.com/MyrtIO/myrtio-go v0.1.2
 	github.com/go-chi/chi v1.5.5
 )
 
