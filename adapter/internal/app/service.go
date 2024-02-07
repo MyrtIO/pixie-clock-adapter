@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/pkg/pixie"
@@ -15,6 +16,7 @@ type Service struct {
 	router    *chi.Mux
 	usecase   interfaces.Usecase
 	provider  interfaces.TransportProvider
+	port      int
 	closePing chan struct{}
 }
 
@@ -36,7 +38,7 @@ func (s *Service) Setup() {
 	s.router.Post("/disable", s.DisableLights)
 }
 
-func (s *Service) Start(port int) {
+func (s *Service) Start() error {
 	ticker := time.NewTicker(5 * time.Second)
 	s.closePing = make(chan struct{})
 	go func() {
@@ -53,9 +55,15 @@ func (s *Service) Start(port int) {
 			}
 		}
 	}()
-	http.ListenAndServe(":"+strconv.Itoa(port), s.Handler())
+	addr := ":" + strconv.Itoa(s.port)
+	fmt.Println("Starting server on " + addr)
+	return http.ListenAndServe(addr, s.Handler())
 }
 
 func (s *Service) Handler() http.Handler {
 	return s.router
+}
+
+func (s *Service) SetPort(port int) {
+	s.port = port
 }
