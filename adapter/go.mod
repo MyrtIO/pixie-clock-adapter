@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/MyrtIO/myrtio-go v0.1.2
 	github.com/go-chi/chi v1.5.5
+	github.com/mishamyrt/go-lunch v0.0.1
 	github.com/sevlyar/go-daemon v0.1.6
 	github.com/spf13/cobra v1.8.0
 )
