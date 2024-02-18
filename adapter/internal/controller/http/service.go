@@ -1,4 +1,4 @@
-package app
+package http
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type Service struct {
 	closePing chan struct{}
 }
 
-func New(usecase interfaces.Usecase, provider interfaces.TransportProvider) *Service {
+func NewService(usecase interfaces.Usecase, provider interfaces.TransportProvider) *Service {
 	r := chi.NewRouter()
 	s := Service{
 		router:   r,

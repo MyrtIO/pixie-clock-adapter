@@ -2,15 +2,10 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"pixie_adapter/internal/app"
-	"pixie_adapter/internal/usecase"
-	"pixie_adapter/pkg/pixie"
 	"pixie_adapter/pkg/process"
 
-	"github.com/MyrtIO/myrtio-go/serial"
 	"github.com/spf13/cobra"
 )
 
@@ -64,22 +59,8 @@ func getDaemon() process.Daemon {
 	return process.NewDaemon(PackageName)
 }
 
-func getService() *app.Service {
-	if portPath == "" {
-		paths, err := serial.Discover()
-		if err != nil {
-			log.Panic(err)
-		}
-		if len(paths) == 0 {
-			fmt.Println("Serial devices is not found")
-			os.Exit(1)
-		}
-		portPath = paths[0]
-	}
-
-	p := pixie.NewConnection(portPath, baudRate)
-	u := usecase.New()
-	s := app.New(u, p)
-	s.SetPort(httpPort)
-	return s
+func getService() *app.Application {
+	app := app.New(portPath, baudRate)
+	app.SetPort(httpPort)
+	return app
 }
