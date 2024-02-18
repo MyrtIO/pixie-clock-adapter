@@ -1,6 +1,6 @@
 VENV_PATH = ./venv
 VENV = . $(VENV_PATH)/bin/activate;
-GC = go build -trimpath
+GC = go build -ldflags="-s -w" -trimpath
 
 .PHONY: configure
 configure:
