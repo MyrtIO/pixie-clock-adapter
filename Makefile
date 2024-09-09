@@ -10,7 +10,7 @@ configure:
 
 .PHONY: build
 build:
-	cd adapter; $(GC) -o ../build/pixie-adapter pixie-adapter.go
+	$(GC) -o ./build/pixie-adapter pixie-adapter.go
 
 .PHONY: install
 install:
