@@ -32,3 +32,12 @@ After that, you can start the background service:
 ```sh
 pixie-adapter start
 ```
+
+## Topics
+
+Service provides the following topics:
+
+- `homeassistant/light/pixie_clock_light/config` — for Home Assistant discovery
+- `myrt/pixie/light/set` — for setting light state
+- `myrt/pixie/light` — for getting light state
+- `myrt/pixie/light/available` — for checking light availability
