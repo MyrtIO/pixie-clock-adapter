@@ -17,7 +17,7 @@ const topicLightAvailability = "myrt/pixie/light/available"
 const topicLightConfig = "homeassistant/light/pixie_clock_light/config"
 
 var entityConfig = homeassistant.LightConfig{
-	Name:              "PixieClock",
+	Name:              "light",
 	UniqueID:          "pixie_clock_light",
 	Icon:              "mdi:clock-digital",
 	Brightness:        true,
