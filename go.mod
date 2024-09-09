@@ -4,7 +4,8 @@ go 1.21.4
 
 require (
 	github.com/MyrtIO/myrtio-go v0.1.2
-	github.com/go-chi/chi v1.5.5
+	github.com/eclipse/paho.mqtt.golang v1.5.0
+	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/mishamyrt/go-lunch v0.0.1
 	github.com/sevlyar/go-daemon v0.1.6
 	github.com/spf13/cobra v1.8.0
@@ -13,9 +14,7 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.5.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
