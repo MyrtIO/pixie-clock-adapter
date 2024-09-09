@@ -2,7 +2,6 @@ package repository
 
 import (
 	"pixie_adapter/internal/interfaces"
-	"pixie_adapter/pkg/pixie"
 )
 
 // Repository provides access to the device features
@@ -15,7 +14,7 @@ type Repository struct {
 var _ interfaces.Repositories = (*Repository)(nil)
 
 // New creates a new repository
-func New(conn *pixie.Connection) *Repository {
+func New(conn interfaces.TransportProvider) *Repository {
 	return &Repository{
 		light:  newLightRepository(conn),
 		time:   newTimeRepository(conn),

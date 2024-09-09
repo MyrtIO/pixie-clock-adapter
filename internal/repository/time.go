@@ -8,12 +8,12 @@ import (
 
 // TimeRepository provides access to the time
 type TimeRepository struct {
-	conn *pixie.Connection
+	conn interfaces.TransportProvider
 }
 
 var _ interfaces.TimeRepository = (*TimeRepository)(nil)
 
-func newTimeRepository(conn *pixie.Connection) *TimeRepository {
+func newTimeRepository(conn interfaces.TransportProvider) *TimeRepository {
 	return &TimeRepository{
 		conn: conn,
 	}

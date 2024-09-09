@@ -7,12 +7,12 @@ import (
 
 // SystemRepository provides access to the system
 type SystemRepository struct {
-	conn *pixie.Connection
+	conn interfaces.TransportProvider
 }
 
 var _ interfaces.SystemRepository = (*SystemRepository)(nil)
 
-func newSystemRepository(conn *pixie.Connection) *SystemRepository {
+func newSystemRepository(conn interfaces.TransportProvider) *SystemRepository {
 	return &SystemRepository{
 		conn: conn,
 	}

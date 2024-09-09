@@ -10,12 +10,12 @@ import (
 
 // LightRepository provides access to the light
 type LightRepository struct {
-	conn *pixie.Connection
+	conn interfaces.TransportProvider
 }
 
 var _ interfaces.LightRepository = (*LightRepository)(nil)
 
-func newLightRepository(conn *pixie.Connection) *LightRepository {
+func newLightRepository(conn interfaces.TransportProvider) *LightRepository {
 	return &LightRepository{
 		conn: conn,
 	}
