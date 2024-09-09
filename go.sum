@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
-github.com/MyrtIO/myrtio-go v0.1.2 h1:eV3JVHNE9kBb2TeSz5Skwqw+TgrtcBQCkukTu8HP8dk=
-github.com/MyrtIO/myrtio-go v0.1.2/go.mod h1:RWiJ7aYQbcj9rfiJQ36OdQ5hw20WXf1wOsmRcRyLe4A=
+github.com/MyrtIO/myrtio-go v0.1.3 h1:PT2WQ7B2gPch0H+hZvE8FQWVi9CeACOB5bzhZRX78e0=
+github.com/MyrtIO/myrtio-go v0.1.3/go.mod h1:RWiJ7aYQbcj9rfiJQ36OdQ5hw20WXf1wOsmRcRyLe4A=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/goselect v0.1.2 h1:2DNy14+JPjRBgPzAd1thbQp4BSIihxcBf0IXhQXDRa0=
 github.com/creack/goselect v0.1.2/go.mod h1:a/NhLweNvqIYMuxcMOuWY516Cimucms3DglDzQP3hKY=

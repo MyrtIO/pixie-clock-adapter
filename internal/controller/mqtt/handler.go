@@ -13,10 +13,17 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-const topicLightUpdate = "myrt/pixie/light/set"
-const topicLightState = "myrt/pixie/light"
-const topicLightAvailability = "myrt/pixie/light/available"
-const topicLightConfig = "homeassistant/light/pixie_clock_light/config"
+const (
+	topicLightStateUpdate  = "myrt/pixie/light/set"
+	topicLightState        = "myrt/pixie/light"
+	topicLightAvailability = "myrt/pixie/light/available"
+	topicLightConfig       = "homeassistant/light/pixie_clock_light/config"
+
+	stateReportInterval        = 50 * time.Second
+	availabilityReportInterval = 60 * time.Second
+	availabilityCheckInterval  = 5 * time.Second
+	configReportInterval       = 120 * time.Second
+)
 
 func getHostname() string {
 	hostname, err := os.Hostname()
@@ -34,7 +41,7 @@ var entityConfig = homeassistant.LightConfig{
 	Effect:              true,
 	Schema:              homeassistant.SchemaTypeJSON,
 	StateTopic:          topicLightState,
-	CommandTopic:        topicLightUpdate,
+	CommandTopic:        topicLightStateUpdate,
 	AvailabilityTopic:   topicLightAvailability,
 	SupportedColorModes: []homeassistant.ColorMode{homeassistant.ColorModeRGB},
 	EffectList:          []string{"static", "smooth", "zoom"},
@@ -49,8 +56,10 @@ var entityConfig = homeassistant.LightConfig{
 
 // Handler handles MQTT messages
 type Handler struct {
-	client mqtt.Client
-	repos  interfaces.Repositories
+	client                 mqtt.Client
+	repos                  interfaces.Repositories
+	nextAvailabilityReport time.Time
+	isConnected            bool
 }
 
 func newHandler(repos interfaces.Repositories) Handler {
@@ -63,10 +72,10 @@ func newHandler(repos interfaces.Repositories) Handler {
 func (h *Handler) Router(c mqtt.Client) *Router {
 	h.client = c
 	router := newRouter(h.client)
-	router.OnTopicUpdate(topicLightUpdate, h.HandleUpdateLightState)
-	router.Report(h.HandleReportLightState, 60*time.Second)
-	router.Report(h.HandleReportConfig, 10*time.Second)
-	router.Report(h.HandleReportAvailability, 10*time.Second)
+	router.OnTopicUpdate(topicLightStateUpdate, h.HandleUpdateLightState)
+	router.Report(h.HandleReportLightState, stateReportInterval)
+	router.Report(h.HandleReportConfig, configReportInterval)
+	router.Report(h.HandleReportAvailability, availabilityCheckInterval)
 
 	return router
 }
@@ -74,27 +83,25 @@ func (h *Handler) Router(c mqtt.Client) *Router {
 // HandleReportConfig reports the config
 func (h *Handler) HandleReportConfig(client mqtt.Client) {
 	msg, _ := json.Marshal(entityConfig)
-	token := client.Publish(topicLightConfig, 0, false, msg)
-	token.Wait()
-	if token.Error() != nil {
-		log.Printf("Error publishing config: %s\n", token.Error())
-	}
+	h.safePublish(client, topicLightConfig, msg)
 }
 
 // HandleReportAvailability reports the availability
 func (h *Handler) HandleReportAvailability(client mqtt.Client) {
-	var token mqtt.Token
 	var message string
-	if h.repos.System().IsConnected() {
+	isConnected := h.repos.System().IsConnected()
+	if isConnected == h.isConnected && time.Now().Before(h.nextAvailabilityReport) {
+		return
+	}
+
+	h.isConnected = isConnected
+	if isConnected {
 		message = "online"
 	} else {
 		message = "offline"
 	}
-	token = client.Publish(topicLightAvailability, 0, false, message)
-	token.Wait()
-	if token.Error() != nil {
-		log.Printf("Error publishing availability: %s\n", token.Error())
-	}
+	h.safePublish(client, topicLightAvailability, message)
+	h.nextAvailabilityReport = time.Now().Add(availabilityReportInterval)
 }
 
 // HandleUpdateLightState handles a light state update request
@@ -117,21 +124,28 @@ func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
 
 // HandleReportLightState reports the light state
 func (h *Handler) HandleReportLightState(client mqtt.Client) {
+	if !h.repos.System().IsConnected() {
+		return
+	}
 	state, err := h.repos.Light().GetState()
 	if err != nil {
 		log.Printf("Error getting state: %s\n", err)
 		return
 	}
 
-	var bytes []byte
-	bytes, err = json.Marshal(state)
+	var data []byte
+	data, err = json.Marshal(state)
 	if err != nil {
 		log.Printf("Error marshalling state: %s\n", err)
 		return
 	}
-	token := client.Publish(topicLightState, 0, false, bytes)
+	h.safePublish(client, topicLightState, data)
+}
+
+func (h *Handler) safePublish(client mqtt.Client, topic string, payload interface{}) {
+	token := client.Publish(topic, 0, false, payload)
 	token.Wait()
 	if token.Error() != nil {
-		log.Printf("Error publishing state: %s\n", token.Error())
+		log.Printf("Error publishing: %s\n", token.Error())
 	}
 }

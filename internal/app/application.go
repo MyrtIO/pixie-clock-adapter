@@ -54,7 +54,6 @@ func New(configPath string) *Application {
 
 	runner := worker.NewRunner(
 		worker.NewTimeSync(repos),
-		worker.NewPing(repos),
 	)
 
 	return &Application{
