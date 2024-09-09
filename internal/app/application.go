@@ -17,6 +17,7 @@ import (
 type Application struct {
 	mqtt   *mqtt.Controller
 	runner *worker.Runner
+	repos  *repository.Repository
 }
 
 // New initializes a new Application.
@@ -50,12 +51,6 @@ func New(configPath string) *Application {
 	repos := repository.New(conn)
 	mqtt := mqtt.New(config, repos)
 
-	if repos.System().IsConnected() {
-		log.Println("Clock is connected")
-	} else {
-		log.Println("Clock is not connected")
-	}
-
 	runner := worker.NewRunner(
 		worker.NewTimeSync(repos),
 		worker.NewPing(repos),
@@ -64,18 +59,25 @@ func New(configPath string) *Application {
 	return &Application{
 		mqtt:   mqtt,
 		runner: runner,
+		repos:  repos,
 	}
 }
 
 // Start is a method of the Application struct that starts the application.
-func (app *Application) Start() error {
+func (a *Application) Start() error {
 	ctx := context.Background()
 	_, cancel := context.WithCancel(ctx)
 
 	defer cancel()
 
-	app.runner.Run(ctx.Done())
-	err := app.mqtt.Start(ctx)
+	if a.repos.System().IsConnected() {
+		log.Println("Clock is connected")
+	} else {
+		log.Println("Clock is not connected")
+	}
+
+	a.runner.Run(ctx.Done())
+	err := a.mqtt.Start(ctx)
 	if err != nil {
 		return err
 	}
