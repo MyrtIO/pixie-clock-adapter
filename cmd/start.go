@@ -25,7 +25,11 @@ var startCmd = &cobra.Command{
 		}
 		if child == nil {
 			defer d.Context.Release() //nolint:errcheck
-			s.Start()
+			err = s.Start()
+			if err != nil {
+				fmt.Println("Error while starting application:", err.Error())
+				os.Exit(1)
+			}
 		} else {
 			fmt.Println("Daemon is started.")
 		}

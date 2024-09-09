@@ -19,9 +19,5 @@ install:
 
 .PHONY: lint
 lint:
-	make lint-integration
-
-.PHONY: lint-integration
-lint-integration:
-	ruff check custom_components/
-	pylint custom_components/
+	golangci-lint run ./...
+	revive -config ./revive.toml  ./...

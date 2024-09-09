@@ -1,9 +1,1 @@
-mqtt:
-  host: "your.mqtt.server"
-  port: "1883"
-  client_id: "PixieClock"
-  username: ""
-  password: ""
-serial:
-  port: ""
-  baud_rate: 28800
+

@@ -38,7 +38,7 @@ func (m *Controller) handleConnect(c mqtt.Client) {
 	m.router.Start()
 }
 
-func (m *Controller) handleDisconnect(c mqtt.Client, err error) {
+func (m *Controller) handleDisconnect(_ mqtt.Client, err error) {
 	m.router.Destroy()
 	m.router = nil
 

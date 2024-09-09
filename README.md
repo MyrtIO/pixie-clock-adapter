@@ -1,6 +1,6 @@
 # Pixie Clock Adapter
 
-This repository contains the server and Home Assistant integration that allows you to add [Pixie Clock](https://github.com/MyrtIO/pixie-clock).
+This repository contains a service that allows you to integrate [Pixie Clock](https://github.com/MyrtIO/pixie-clock) into Home Assistant via MQTT.
 
 ## Usage
 
@@ -11,10 +11,24 @@ make build
 make install
 ```
 
-Next, add the integration from the [custom_components](./custom_components/) folder to your Home Assistant configuration. In the configuration yaml add:
+Next, create configuration file at `$HOME/.config/pixie-adapter/config.yaml`.
+
+Configuration file should look like this:
 
 ```yaml
-light:
-  - platform: pixie_clock
-    address: '192.168.1.5' # Your server local IP address
+mqtt:
+  host: "your.mqtt.server"
+  port: "1883"
+  client_id: "PixieClock"
+  username: ""
+  password: ""
+serial:
+  port: "" # omit to auto-detect
+  baud_rate: 28800
+```
+
+After that, you can start the background service:
+
+```sh
+pixie-adapter start
 ```

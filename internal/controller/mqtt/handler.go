@@ -5,6 +5,7 @@ import (
 	"log"
 	"pixie_adapter/internal/entity"
 	"pixie_adapter/internal/interfaces"
+	"pixie_adapter/pkg/homeassistant"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,6 +15,23 @@ const topicLightUpdate = "myrt/pixie/light/set"
 const topicLightState = "myrt/pixie/light"
 const topicLightAvailability = "myrt/pixie/light/available"
 const topicLightConfig = "homeassistant/light/pixie_clock_light/config"
+
+var entityConfig = homeassistant.LightConfig{
+	Name:              "PixieClock",
+	UniqueID:          "pixie_clock_light",
+	Icon:              "mdi:clock-digital",
+	Brightness:        true,
+	Effect:            true,
+	Schema:            homeassistant.SchemaTypeJSON,
+	StateTopic:        topicLightState,
+	CommandTopic:      topicLightUpdate,
+	AvailabilityTopic: topicLightAvailability,
+	EffectList:        []string{"static", "smooth", "zoom"},
+	Device: homeassistant.DeviceConfig{
+		Identifiers: []string{"pixie_clock_light"},
+		Name:        "PixieClock",
+	},
+}
 
 type Handler struct {
 	client mqtt.Client
@@ -38,32 +56,12 @@ func (h *Handler) Router(c mqtt.Client) *Router {
 }
 
 func (h *Handler) HandleReportConfig(client mqtt.Client) {
-	config := entity.HALightConfig{
-		Name:              "PixieClock",
-		UniqueID:          "pixie_clock_light",
-		Icon:              "mdi:clock-digital",
-		Brightness:        true,
-		Effect:            true,
-		Schema:            "json",
-		StateTopic:        topicLightState,
-		CommandTopic:      topicLightUpdate,
-		AvailabilityTopic: topicLightAvailability,
-		EffectList:        []string{"static", "smooth", "zoom"},
-		Supported:         []string{"rgb"},
-		Device: struct {
-			Name        string   `json:"name"`
-			Identifiers []string `json:"identifiers"`
-		}{
-			Name: "PixieClock",
-			Identifiers: []string{
-				"pixie_clock",
-			},
-		},
-	}
-
-	msg, _ := json.Marshal(config)
+	msg, _ := json.Marshal(entityConfig)
 	token := h.client.Publish(topicLightConfig, 0, false, msg)
 	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Error publishing config: %s\n", token.Error())
+	}
 }
 
 func (h *Handler) HandleReportAvailability(client mqtt.Client) {
@@ -76,6 +74,9 @@ func (h *Handler) HandleReportAvailability(client mqtt.Client) {
 	}
 	token = h.client.Publish(topicLightAvailability, 0, false, message)
 	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Error publishing availability: %s\n", token.Error())
+	}
 }
 
 func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
@@ -109,5 +110,9 @@ func (h *Handler) HandleReportLightState(client mqtt.Client) {
 		log.Printf("Error marshalling state: %s\n", err)
 		return
 	}
-	client.Publish(topicLightState, 0, false, bytes)
+	token := h.client.Publish(topicLightState, 0, false, bytes)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Error publishing state: %s\n", token.Error())
+	}
 }
