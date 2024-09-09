@@ -5,7 +5,7 @@ import (
 	"pixie_adapter/internal/entity"
 	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/pkg/pixie"
-	"pixie_adapter/pkg/ptr"
+	"pixie_adapter/pkg/pointer"
 )
 
 // LightRepository provides access to the light
@@ -47,9 +47,9 @@ func (c *LightRepository) GetState() (entity.LightState, error) {
 	}
 
 	return entity.LightState{
-		Brightness: ptr.From(brightness),
-		Color:      ptr.From(entity.RGBColorFromSlice(color)),
-		Effect:     ptr.From(entity.LightEffectFromCode(effect)),
+		Brightness: pointer.From(brightness),
+		Color:      pointer.From(entity.RGBColorFromSlice(color)),
+		Effect:     pointer.From(entity.LightEffectFromCode(effect)),
 		State:      entity.LightPowerStateFromBool(isEnabled),
 	}, nil
 }

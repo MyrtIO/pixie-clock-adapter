@@ -1,4 +1,4 @@
-package ptr
+package pointer
 
 // From creates a pointer from a value
 func From[T any](value T) *T {
