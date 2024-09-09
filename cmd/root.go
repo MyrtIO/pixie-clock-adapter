@@ -5,24 +5,16 @@ import (
 	"fmt"
 	"os"
 	"pixie_adapter/internal/app"
+	"pixie_adapter/internal/config"
 	"pixie_adapter/pkg/process"
 
 	"github.com/spf13/cobra"
 )
 
-// AppName represents app name.
-const AppName = "pixie-adapter"
-
-// PackageName represents app package name.
-const PackageName = "co.myrt.pixie_adapter"
-
-// Version represents current app version.
-var Version = "snapshot"
-
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:     AppName,
-	Version: Version,
+	Use:     config.AppName,
+	Version: config.Version,
 	Short:   "An application that provides an HTTP REST API for Pixie Clock",
 }
 
@@ -42,13 +34,13 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(
 		&configPath,
 		"config", "c",
-		fmt.Sprintf("%s/.config/%s/config.yaml", homeDir, AppName),
+		fmt.Sprintf("%s/.config/%s/config.yaml", homeDir, config.AppName),
 		"The path to the configuration file",
 	)
 }
 
 func getDaemon() process.Daemon {
-	return process.NewDaemon(PackageName)
+	return process.NewDaemon(config.PackageName)
 }
 
 func getService() *app.Application {

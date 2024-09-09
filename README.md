@@ -18,12 +18,12 @@ Configuration file should look like this:
 ```yaml
 mqtt:
   host: "your.mqtt.server"
-  port: "1883"
+  port: 1883
   client_id: "PixieClock"
   username: ""
   password: ""
 serial:
-  port: "" # omit to auto-detect
+  port: "/dev/cu.wchusbserial114320" # omit to auto-detect
   baud_rate: 28800
 ```
 

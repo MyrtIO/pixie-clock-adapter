@@ -4,6 +4,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"pixie_adapter/internal/config"
 
 	"github.com/mishamyrt/go-lunch"
 	"github.com/spf13/cobra"
@@ -15,9 +16,9 @@ func getAgent() *lunch.Agent {
 		fmt.Println("Executable path is not found:", err.Error())
 		os.Exit(1)
 	}
-	path, _ := lunch.UserPath(PackageName)
+	path, _ := lunch.UserPath(config.PackageName)
 	agent := lunch.Agent{
-		PackageName: PackageName,
+		PackageName: config.PackageName,
 		Command:     binPath + " start",
 		Path:        path,
 	}

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"pixie_adapter/internal/config"
@@ -31,17 +30,18 @@ func New(configPath string) *Application {
 		log.Panicf("Config is not loaded: %s", configPath)
 	}
 
-	portPath := config.PortPath
+	portPath := config.Serial.Port
 	if portPath == "" {
 		paths, err := serial.Discover()
 		if err != nil {
 			log.Panic(err)
 		}
 		if len(paths) == 0 {
-			fmt.Println("Serial devices is not found")
+			log.Println("Serial devices is not found")
 			os.Exit(1)
 		}
 		portPath = paths[0]
+		log.Printf("Serial device is found at %s", portPath)
 	}
 	baudRate := config.BaudRate
 	if baudRate == 0 {

@@ -3,6 +3,8 @@ package mqtt
 import (
 	"encoding/json"
 	"log"
+	"os"
+	"pixie_adapter/internal/config"
 	"pixie_adapter/internal/entity"
 	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/pkg/homeassistant"
@@ -16,20 +18,32 @@ const topicLightState = "myrt/pixie/light"
 const topicLightAvailability = "myrt/pixie/light/available"
 const topicLightConfig = "homeassistant/light/pixie_clock_light/config"
 
+func getHostname() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = ""
+	}
+	return hostname
+}
+
 var entityConfig = homeassistant.LightConfig{
-	Name:              "light",
-	UniqueID:          "pixie_clock_light",
-	Icon:              "mdi:clock-digital",
-	Brightness:        true,
-	Effect:            true,
-	Schema:            homeassistant.SchemaTypeJSON,
-	StateTopic:        topicLightState,
-	CommandTopic:      topicLightUpdate,
-	AvailabilityTopic: topicLightAvailability,
-	EffectList:        []string{"static", "smooth", "zoom"},
+	Name:                "light",
+	UniqueID:            "pixie_clock_light",
+	Icon:                "mdi:clock-digital",
+	Brightness:          true,
+	Effect:              true,
+	Schema:              homeassistant.SchemaTypeJSON,
+	StateTopic:          topicLightState,
+	CommandTopic:        topicLightUpdate,
+	AvailabilityTopic:   topicLightAvailability,
+	SupportedColorModes: []homeassistant.ColorMode{homeassistant.ColorModeRGB},
+	EffectList:          []string{"static", "smooth", "zoom"},
 	Device: homeassistant.DeviceConfig{
 		Identifiers: []string{"pixie_clock_light"},
 		Name:        "PixieClock",
+		Software:    config.Version,
+		Hardware:    "v1",
+		ViaDevice:   getHostname(),
 	},
 }
 
@@ -50,7 +64,7 @@ func (h *Handler) Router(c mqtt.Client) *Router {
 	h.client = c
 	router := newRouter(h.client)
 	router.OnTopicUpdate(topicLightUpdate, h.HandleUpdateLightState)
-	router.Report(h.HandleReportLightState, 10*time.Second)
+	router.Report(h.HandleReportLightState, 60*time.Second)
 	router.Report(h.HandleReportConfig, 10*time.Second)
 	router.Report(h.HandleReportAvailability, 10*time.Second)
 
@@ -91,7 +105,6 @@ func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("Error parsing message: %s\n", err)
 	}
 
-	log.Printf("Received state update: %+v\n", state)
 	hasChanges, err := h.repos.Light().SetState(state)
 	if err != nil {
 		log.Printf("Error setting state: %s\n", err)
