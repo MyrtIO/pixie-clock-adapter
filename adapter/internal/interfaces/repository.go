@@ -16,14 +16,8 @@ type TimeRepository interface {
 }
 
 type LightRepository interface {
-	SetColor(entity.RGBColor) error
-	GetColor() (entity.RGBColor, error)
-	SetBrightness(uint8) error
-	GetBrightness() (uint8, error)
-	SetPower(enabled bool) error
-	GetPower() (bool, error)
-	SetEffect(entity.LightEffect) error
-	GetEffect() (entity.LightEffect, error)
+	SetState(entity.LightState) (bool, error)
+	GetState() (entity.LightState, error)
 }
 
 type SystemRepository interface {

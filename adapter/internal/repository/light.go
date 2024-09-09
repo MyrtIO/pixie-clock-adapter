@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"fmt"
 	"pixie_adapter/internal/entity"
 	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/pkg/pixie"
+	"pixie_adapter/pkg/ptr"
 )
 
 type LightRepository struct {
@@ -18,83 +20,95 @@ func newLightRepository(conn *pixie.Connection) *LightRepository {
 	}
 }
 
-func (c *LightRepository) SetColor(color entity.RGBColor) error {
+func (c *LightRepository) GetState() (entity.LightState, error) {
+	var state entity.LightState
 	tx, err := c.conn.Get()
 	if err != nil {
-		return err
-	}
-	_, err = pixie.SetColor(tx, color.R, color.G, color.B)
-	return err
-}
-
-func (c *LightRepository) GetColor() (color entity.RGBColor, err error) {
-	tx, err := c.conn.Get()
-	if err != nil {
-		return
-	}
-	values, err := pixie.GetColor(tx)
-	if err != nil {
-		return
+		return state, err
 	}
 
-	return entity.RGBColor{
-		R: values[0],
-		G: values[1],
-		B: values[2],
-	}, nil
-}
-
-func (c *LightRepository) SetBrightness(brightness uint8) error {
-	tx, err := c.conn.Get()
+	brightness, err := pixie.GetBrightness(tx)
 	if err != nil {
-		return err
+		return state, fmt.Errorf("error getting brightness: %s", err)
 	}
-	_, err = pixie.SetBrightness(tx, brightness)
-	return err
-}
-
-func (c *LightRepository) GetBrightness() (uint8, error) {
-	tx, err := c.conn.Get()
+	color, err := pixie.GetColor(tx)
 	if err != nil {
-		return 0, err
-	}
-	return pixie.GetBrightness(tx)
-}
-
-func (c *LightRepository) SetPower(enabled bool) error {
-	tx, err := c.conn.Get()
-	if err != nil {
-		return err
-	}
-	_, err = pixie.SetPower(tx, enabled)
-	return err
-}
-
-func (c *LightRepository) GetPower() (bool, error) {
-	tx, err := c.conn.Get()
-	if err != nil {
-		return false, err
-	}
-	return pixie.GetPower(tx)
-}
-
-func (c *LightRepository) SetEffect(effect entity.LightEffect) error {
-	tx, err := c.conn.Get()
-	if err != nil {
-		return err
-	}
-	_, err = pixie.SetEffect(tx, effect.Code())
-	return err
-}
-
-func (c *LightRepository) GetEffect() (entity.LightEffect, error) {
-	tx, err := c.conn.Get()
-	if err != nil {
-		return entity.LightEffectStatic, err
+		return state, fmt.Errorf("error getting color: %s", err)
 	}
 	effect, err := pixie.GetEffect(tx)
 	if err != nil {
-		return entity.LightEffectStatic, err
+		return state, fmt.Errorf("error getting effect: %s", err)
 	}
-	return entity.LightEffectFromCode(effect), nil
+	isEnabled, err := pixie.GetPower(tx)
+	if err != nil {
+		return state, fmt.Errorf("error getting power: %s", err)
+	}
+
+	return entity.LightState{
+		Brightness: ptr.From(brightness),
+		Color:      ptr.From(entity.RGBColorFromSlice(color)),
+		Effect:     ptr.From(entity.LightEffectFromCode(effect)),
+		State:      entity.LightPowerStateFromBool(isEnabled),
+		ColorMode:  entity.LightColorModeRGB,
+	}, nil
+}
+
+func (c *LightRepository) SetState(state entity.LightState) (hasChanges bool, err error) {
+	tx, err := c.conn.Get()
+	if err != nil {
+		return
+	}
+
+	if state.Effect != nil {
+		effect, err := pixie.GetEffect(tx)
+		if err != nil {
+			return hasChanges, fmt.Errorf("error getting effect: %s", err)
+		}
+		stateEffect := state.Effect.Code()
+		if effect != stateEffect {
+			_, err = pixie.SetEffect(tx, stateEffect)
+			if err != nil {
+				return hasChanges, fmt.Errorf("error setting effect: %s", err)
+			}
+			hasChanges = true
+		}
+	}
+	if state.Brightness != nil {
+		brightness, err := pixie.GetBrightness(tx)
+		if err != nil {
+			return hasChanges, fmt.Errorf("error getting brightness: %s", err)
+		}
+		if *state.Brightness != brightness {
+			_, err = pixie.SetBrightness(tx, *state.Brightness)
+			if err != nil {
+				return hasChanges, fmt.Errorf("error setting brightness: %s", err)
+			}
+			hasChanges = true
+		}
+	}
+	if state.Color != nil {
+		color, err := pixie.GetColor(tx)
+		if err != nil {
+			return hasChanges, fmt.Errorf("error getting color: %s", err)
+		}
+		if *state.Color != entity.RGBColorFromSlice(color) {
+			_, err = pixie.SetColor(tx, state.Color.R, state.Color.G, state.Color.B)
+			if err != nil {
+				return hasChanges, fmt.Errorf("error setting color: %s", err)
+			}
+			hasChanges = true
+		}
+	}
+	isEnabled, err := pixie.GetPower(tx)
+	if err != nil {
+		return hasChanges, fmt.Errorf("error getting power: %s", err)
+	}
+	if state.State.Bool() != isEnabled {
+		_, err = pixie.SetPower(tx, state.State.Bool())
+		if err != nil {
+			return hasChanges, fmt.Errorf("error setting power: %s", err)
+		}
+		hasChanges = true
+	}
+	return hasChanges, nil
 }

@@ -67,14 +67,14 @@ func (h *Handler) HandleReportConfig(client mqtt.Client) {
 }
 
 func (h *Handler) HandleReportAvailability(client mqtt.Client) {
-	_, err := h.repos.Light().GetPower()
 	var token mqtt.Token
-	if err != nil {
-		token = h.client.Publish(topicLightAvailability, 0, false, "offline")
+	var message string
+	if h.repos.System().IsConnected() {
+		message = "online"
 	} else {
-		token = h.client.Publish(topicLightAvailability, 0, false, "online")
+		message = "offline"
 	}
-
+	token = h.client.Publish(topicLightAvailability, 0, false, message)
 	token.Wait()
 }
 
@@ -86,79 +86,22 @@ func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
 	}
 
 	log.Printf("Received state update: %+v\n", state)
-
-	hasChanges := false
-	effect, _ := h.repos.Light().GetEffect()
-	if effect != entity.LightEffectEmpty && effect != state.Effect {
-		err = h.repos.Light().SetEffect(state.Effect)
-		if err != nil {
-			log.Printf("Error setting effect: %s\n", err)
-		}
-		hasChanges = true
+	hasChanges, err := h.repos.Light().SetState(state)
+	if err != nil {
+		log.Printf("Error setting state: %s\n", err)
+		return
 	}
-	brightness, _ := h.repos.Light().GetBrightness()
-	if state.Brightness != 0 && brightness != state.Brightness {
-		err = h.repos.Light().SetBrightness(state.Brightness)
-		if err != nil {
-			log.Printf("Error setting brightness: %s\n", err)
-		}
-		hasChanges = true
-	}
-	color, _ := h.repos.Light().GetColor()
-	if state.Color != entity.ColorBlack && color != state.Color {
-		err = h.repos.Light().SetColor(state.Color)
-		if err != nil {
-			log.Printf("Error setting color: %s\n", err)
-		}
-		hasChanges = true
-	}
-	isEnabled, _ := h.repos.Light().GetPower()
-	if state.State != entity.LightPowerStateEmpty &&
-		(isEnabled != (state.State == entity.LightPowerStateOn)) {
-		err = h.repos.Light().SetPower(state.State == entity.LightPowerStateOn)
-		if err != nil {
-			log.Printf("Error setting power: %s\n", err)
-		}
-		hasChanges = true
-	}
-
 	if hasChanges {
 		h.HandleReportLightState(client)
 	}
 }
 
 func (h *Handler) HandleReportLightState(client mqtt.Client) {
-	var state entity.LightState
-
-	brightness, err := h.repos.Light().GetBrightness()
+	state, err := h.repos.Light().GetState()
 	if err != nil {
-		log.Printf("Error getting brightness: %s\n", err)
+		log.Printf("Error getting state: %s\n", err)
 		return
 	}
-	color, err := h.repos.Light().GetColor()
-	if err != nil {
-		log.Printf("Error getting color: %s\n", err)
-		return
-	}
-	effect, err := h.repos.Light().GetEffect()
-	if err != nil {
-		log.Printf("Error getting effect: %s\n", err)
-		return
-	}
-	isEnabled, err := h.repos.Light().GetPower()
-	if err != nil {
-		log.Printf("Error getting power: %s\n", err)
-		return
-	}
-	if isEnabled {
-		state.State = entity.LightPowerStateOn
-	} else {
-		state.State = entity.LightPowerStateOff
-	}
-	state.Brightness = brightness
-	state.Color = color
-	state.Effect = effect
-	state.ColorMode = entity.LightColorModeRGB
 
 	var bytes []byte
 	bytes, err = json.Marshal(state)

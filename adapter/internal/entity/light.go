@@ -10,13 +10,31 @@ var (
 	ColorBlack RGBColor = RGBColor{0, 0, 0}
 )
 
+func RGBColorFromSlice(values []uint8) RGBColor {
+	return RGBColor{
+		R: values[0],
+		G: values[1],
+		B: values[2],
+	}
+}
+
 type LightPowerState string
 
 const (
-	LightPowerStateEmpty LightPowerState = ""
-	LightPowerStateOn    LightPowerState = "ON"
-	LightPowerStateOff   LightPowerState = "OFF"
+	LightPowerStateOn  LightPowerState = "ON"
+	LightPowerStateOff LightPowerState = "OFF"
 )
+
+func (l LightPowerState) Bool() bool {
+	return l == LightPowerStateOn
+}
+
+func LightPowerStateFromBool(enabled bool) LightPowerState {
+	if enabled {
+		return LightPowerStateOn
+	}
+	return LightPowerStateOff
+}
 
 type LightColorMode string
 
@@ -58,8 +76,8 @@ func LightEffectFromCode(code uint8) LightEffect {
 
 type LightState struct {
 	State      LightPowerState `json:"state"`
-	Color      RGBColor        `json:"color"`
+	Color      *RGBColor       `json:"color"`
+	Effect     *LightEffect    `json:"effect"`
 	ColorMode  LightColorMode  `json:"color_mode"`
-	Effect     LightEffect     `json:"effect"`
-	Brightness uint8           `json:"brightness"`
+	Brightness *uint8          `json:"brightness"`
 }
