@@ -1,4 +1,4 @@
-# Pixie Clock Adapter
+# Pixie Clock Adapter [![Quality assurance](https://github.com/MyrtIO/pixie-clock-adapter/actions/workflows/quality-assurance.yaml/badge.svg)](https://github.com/MyrtIO/pixie-clock-adapter/actions/workflows/quality-assurance.yaml)
 
 This repository contains a service that allows you to integrate [Pixie Clock](https://github.com/MyrtIO/pixie-clock) into Home Assistant via MQTT.
 
