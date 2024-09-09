@@ -12,7 +12,7 @@ import (
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts the application in the background",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		s := getService()
 		d := getDaemon()
 		if d.Running() {

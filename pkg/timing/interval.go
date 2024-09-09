@@ -4,12 +4,13 @@ import (
 	"time"
 )
 
+// Interval runs a function periodically
 type Interval struct {
 	Delay  time.Duration
 	Handle func()
 }
 
-// New creates new interval. Receives delay and handle
+// NewInterval creates a new interval
 func NewInterval(delay time.Duration, handle func()) *Interval {
 	i := &Interval{
 		Delay:  delay,

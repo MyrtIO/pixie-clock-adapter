@@ -1,22 +1,28 @@
 package homeassistant
 
+// ColorMode represents the supported color modes
 type ColorMode string
 
 const (
+	// ColorModeRGB represents the RGB color mode
 	ColorModeRGB ColorMode = "rgb"
 )
 
+// SchemaType represents the type of the schema
 type SchemaType string
 
 const (
+	// SchemaTypeJSON represents the JSON schema
 	SchemaTypeJSON SchemaType = "json"
 )
 
+// DeviceConfig represents the device config
 type DeviceConfig struct {
 	Identifiers []string `json:"identifiers"`
 	Name        string   `json:"name"`
 }
 
+// LightConfig represents the light config
 type LightConfig struct {
 	Name                string       `json:"name"`
 	Icon                string       `json:"icon"`

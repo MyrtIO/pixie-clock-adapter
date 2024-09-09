@@ -33,6 +33,7 @@ var entityConfig = homeassistant.LightConfig{
 	},
 }
 
+// Handler handles MQTT messages
 type Handler struct {
 	client mqtt.Client
 	repos  interfaces.Repositories
@@ -44,6 +45,7 @@ func newHandler(repos interfaces.Repositories) Handler {
 	}
 }
 
+// Router creates a new handled router
 func (h *Handler) Router(c mqtt.Client) *Router {
 	h.client = c
 	router := newRouter(h.client)
@@ -55,15 +57,17 @@ func (h *Handler) Router(c mqtt.Client) *Router {
 	return router
 }
 
+// HandleReportConfig reports the config
 func (h *Handler) HandleReportConfig(client mqtt.Client) {
 	msg, _ := json.Marshal(entityConfig)
-	token := h.client.Publish(topicLightConfig, 0, false, msg)
+	token := client.Publish(topicLightConfig, 0, false, msg)
 	token.Wait()
 	if token.Error() != nil {
 		log.Printf("Error publishing config: %s\n", token.Error())
 	}
 }
 
+// HandleReportAvailability reports the availability
 func (h *Handler) HandleReportAvailability(client mqtt.Client) {
 	var token mqtt.Token
 	var message string
@@ -72,13 +76,14 @@ func (h *Handler) HandleReportAvailability(client mqtt.Client) {
 	} else {
 		message = "offline"
 	}
-	token = h.client.Publish(topicLightAvailability, 0, false, message)
+	token = client.Publish(topicLightAvailability, 0, false, message)
 	token.Wait()
 	if token.Error() != nil {
 		log.Printf("Error publishing availability: %s\n", token.Error())
 	}
 }
 
+// HandleUpdateLightState handles a light state update request
 func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
 	var state entity.LightState
 	err := json.Unmarshal(msg.Payload(), &state)
@@ -97,6 +102,7 @@ func (h *Handler) HandleUpdateLightState(client mqtt.Client, msg mqtt.Message) {
 	}
 }
 
+// HandleReportLightState reports the light state
 func (h *Handler) HandleReportLightState(client mqtt.Client) {
 	state, err := h.repos.Light().GetState()
 	if err != nil {
@@ -110,7 +116,7 @@ func (h *Handler) HandleReportLightState(client mqtt.Client) {
 		log.Printf("Error marshalling state: %s\n", err)
 		return
 	}
-	token := h.client.Publish(topicLightState, 0, false, bytes)
+	token := client.Publish(topicLightState, 0, false, bytes)
 	token.Wait()
 	if token.Error() != nil {
 		log.Printf("Error publishing state: %s\n", token.Error())

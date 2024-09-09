@@ -28,7 +28,7 @@ func getAgent() *lunch.Agent {
 var autostartEnableCmd = &cobra.Command{
 	Use:   "enable",
 	Short: "Enables automatic startup",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		agent := getAgent()
 		exists, _ := agent.Exists()
 		if exists {
@@ -48,7 +48,7 @@ var autostartEnableCmd = &cobra.Command{
 var autostartDisableCmd = &cobra.Command{
 	Use:   "disable",
 	Short: "Disables automatic startup",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		agent := getAgent()
 		exists, _ := agent.Exists()
 		if !exists {
@@ -68,7 +68,7 @@ var autostartDisableCmd = &cobra.Command{
 var autostartCmd = &cobra.Command{
 	Use:   "autostart",
 	Short: "Controls the automatic start-up of the application",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		agent := getAgent()
 		exists, _ := agent.Exists()
 		if exists {

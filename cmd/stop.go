@@ -11,7 +11,7 @@ import (
 var stopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stops the background application",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		d := getDaemon()
 		if d.Running() {
 			err := d.Stop()

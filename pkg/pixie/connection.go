@@ -8,8 +8,10 @@ import (
 	"github.com/MyrtIO/myrtio-go/serial"
 )
 
+// ErrNotConnected is returned when connection is not established
 var ErrNotConnected = errors.New("not connected")
 
+// Connection is a connection to the pixie clock
 type Connection struct {
 	Path     string
 	BaudRate int
@@ -17,6 +19,7 @@ type Connection struct {
 	mu       sync.Mutex
 }
 
+// NewConnection creates a new Connection
 func NewConnection(path string, baudRate int) *Connection {
 	return &Connection{
 		Path:     path,
@@ -24,6 +27,7 @@ func NewConnection(path string, baudRate int) *Connection {
 	}
 }
 
+// Get returns a connection to the pixie clock
 func (p *Connection) Get() (myrtio.Transport, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()

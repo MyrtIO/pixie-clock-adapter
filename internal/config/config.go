@@ -8,11 +8,13 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+// Config represents the application configuration.
 type Config struct {
 	MQTT   `yaml:"mqtt"`
 	Serial `yaml:"serial"`
 }
 
+// MQTT represents the MQTT configuration.
 type MQTT struct {
 	Host     string `env:"MQTT_HOST" yaml:"host"`
 	Port     string `env:"MQTT_PORT" yaml:"port"`
@@ -21,6 +23,7 @@ type MQTT struct {
 	ClientID string `env:"MQTT_CLIENT_ID" yaml:"client_id"`
 }
 
+// Serial represents the serial configuration.
 type Serial struct {
 	PortPath string `env:"SERIAL_PORT" yaml:"port_path"`
 	BaudRate int    `env:"SERIAL_BAUD_RATE" yaml:"baud_rate"`
@@ -43,6 +46,7 @@ func New(path string) (*Config, error) {
 	return cfg, nil
 }
 
+// MQTTServerURL returns the MQTT server URL.
 func (c *MQTT) MQTTServerURL() string {
 	return "tcp://" + c.Host + ":" + fmt.Sprint(c.Port)
 }

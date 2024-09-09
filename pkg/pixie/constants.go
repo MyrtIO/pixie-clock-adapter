@@ -1,5 +1,6 @@
 package pixie
 
+//revive:disable
 const (
 	FeatureSystem     byte = 0
 	FeatureClock      byte = 1
@@ -26,3 +27,5 @@ const (
 	// Stopwatch actions
 	ActionStopwatchActivate byte = 0
 )
+
+//revive:enable

@@ -8,6 +8,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+// Router routes MQTT messages
 type Router struct {
 	cancel  chan struct{}
 	updates []*timing.Interval
@@ -25,20 +26,24 @@ func newRouter(c mqtt.Client) *Router {
 	return r
 }
 
-func (r *Router) Destroy() {
+// Stop stops the router
+func (r *Router) Stop() {
 	r.cancel <- struct{}{}
 }
 
+// OnTopicUpdate registers a handler for a topic
 func (r *Router) OnTopicUpdate(topic string, handler mqtt.MessageHandler) {
 	r.routes[topic] = handler
 }
 
+// Report registers a handler for a topic with a given interval
 func (r *Router) Report(handler func(mqtt.Client), interval time.Duration) {
 	r.updates = append(r.updates, timing.NewInterval(interval, func() {
 		handler(r.client)
 	}))
 }
 
+// Start starts the router
 func (r *Router) Start() {
 	for topic, handler := range r.routes {
 		token := r.client.Subscribe(topic, 0, handler)

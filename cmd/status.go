@@ -11,7 +11,7 @@ import (
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Prints application status",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		d := getDaemon()
 		if d.Running() {
 			fmt.Println("Running")

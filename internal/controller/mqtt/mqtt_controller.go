@@ -10,6 +10,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+// Controller manages the MQTT connection
 type Controller struct {
 	serverURL string
 	clientID  string
@@ -20,6 +21,7 @@ type Controller struct {
 	router  *Router
 }
 
+// New creates a new MQTT controller
 func New(c *config.Config, repos interfaces.Repositories) *Controller {
 	handler := newHandler(repos)
 	m := &Controller{
@@ -39,7 +41,7 @@ func (m *Controller) handleConnect(c mqtt.Client) {
 }
 
 func (m *Controller) handleDisconnect(_ mqtt.Client, err error) {
-	m.router.Destroy()
+	m.router.Stop()
 	m.router = nil
 
 	log.Printf("Disconnected from %s\n", m.serverURL)
@@ -48,6 +50,7 @@ func (m *Controller) handleDisconnect(_ mqtt.Client, err error) {
 	}
 }
 
+// Start starts the MQTT controller
 func (m *Controller) Start(ctx context.Context) error {
 	connOpts := mqtt.NewClientOptions().
 		AddBroker(m.serverURL).

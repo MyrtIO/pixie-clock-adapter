@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// TimeRepository provides access to the time
 type TimeRepository struct {
 	conn *pixie.Connection
 }
@@ -18,6 +19,7 @@ func newTimeRepository(conn *pixie.Connection) *TimeRepository {
 	}
 }
 
+// Set sets the time of the pixie clock
 func (t *TimeRepository) Set(nextTime time.Time) error {
 	tx, err := t.conn.Get()
 	if err != nil {

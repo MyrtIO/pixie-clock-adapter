@@ -14,6 +14,7 @@ import (
 	"github.com/MyrtIO/myrtio-go/serial"
 )
 
+// Application represents the core of the service
 type Application struct {
 	mqtt   *mqtt.Controller
 	runner *worker.Runner

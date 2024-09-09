@@ -12,7 +12,7 @@ import (
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Runs the application in the current process",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		s := getService()
 		d := getDaemon()
 		if d.Running() {

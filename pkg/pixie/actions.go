@@ -6,6 +6,7 @@ import (
 	"github.com/MyrtIO/myrtio-go"
 )
 
+// SetTime sets the time of the pixie clock
 func SetTime(tx myrtio.Transport, t time.Time) (bool, error) {
 	hour := byte(t.Hour())
 	minute := byte(t.Minute())
@@ -21,6 +22,7 @@ func SetTime(tx myrtio.Transport, t time.Time) (bool, error) {
 	return resp.Success(), nil
 }
 
+// SetColor sets the color of the pixie clock
 func SetColor(tx myrtio.Transport, r, g, b byte) (bool, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -33,6 +35,7 @@ func SetColor(tx myrtio.Transport, r, g, b byte) (bool, error) {
 	return resp.Success(), nil
 }
 
+// SetBrightness sets the brightness of the pixie clock
 func SetBrightness(tx myrtio.Transport, brightness byte) (bool, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -45,6 +48,7 @@ func SetBrightness(tx myrtio.Transport, brightness byte) (bool, error) {
 	return resp.Success(), nil
 }
 
+// SetEffect sets the effect of the pixie clock
 func SetEffect(tx myrtio.Transport, effectCode byte) (bool, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -57,6 +61,7 @@ func SetEffect(tx myrtio.Transport, effectCode byte) (bool, error) {
 	return resp.Success(), nil
 }
 
+// GetEffect gets the effect of the pixie clock
 func GetEffect(tx myrtio.Transport) (byte, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -68,6 +73,7 @@ func GetEffect(tx myrtio.Transport) (byte, error) {
 	return resp.Payload[1], nil
 }
 
+// Ping checks if the pixie clock is connected
 func Ping(tx myrtio.Transport) bool {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureSystem,
@@ -79,6 +85,7 @@ func Ping(tx myrtio.Transport) bool {
 	return resp.Success()
 }
 
+// GetColor gets the color of the pixie clock
 func GetColor(tx myrtio.Transport) ([]byte, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -90,6 +97,7 @@ func GetColor(tx myrtio.Transport) ([]byte, error) {
 	return resp.SkipStatus(), nil
 }
 
+// GetBrightness gets the brightness of the pixie clock
 func GetBrightness(tx myrtio.Transport) (byte, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,
@@ -101,8 +109,9 @@ func GetBrightness(tx myrtio.Transport) (byte, error) {
 	return resp.Payload[1], nil
 }
 
+// SetPower sets the power of the pixie clock
 func SetPower(tx myrtio.Transport, enabled bool) (bool, error) {
-	var enabledByte byte = 0
+	var enabledByte byte
 	if enabled {
 		enabledByte = 1
 	}
@@ -117,6 +126,7 @@ func SetPower(tx myrtio.Transport, enabled bool) (bool, error) {
 	return resp.Success(), nil
 }
 
+// GetPower gets the power of the pixie clock
 func GetPower(tx myrtio.Transport) (bool, error) {
 	resp, err := tx.RunAction(&myrtio.Message{
 		Feature: FeatureIndicators,

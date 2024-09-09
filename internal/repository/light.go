@@ -8,6 +8,7 @@ import (
 	"pixie_adapter/pkg/ptr"
 )
 
+// LightRepository provides access to the light
 type LightRepository struct {
 	conn *pixie.Connection
 }
@@ -20,6 +21,7 @@ func newLightRepository(conn *pixie.Connection) *LightRepository {
 	}
 }
 
+// GetState returns the current state of the light
 func (c *LightRepository) GetState() (entity.LightState, error) {
 	var state entity.LightState
 	tx, err := c.conn.Get()
@@ -49,10 +51,10 @@ func (c *LightRepository) GetState() (entity.LightState, error) {
 		Color:      ptr.From(entity.RGBColorFromSlice(color)),
 		Effect:     ptr.From(entity.LightEffectFromCode(effect)),
 		State:      entity.LightPowerStateFromBool(isEnabled),
-		ColorMode:  entity.LightColorModeRGB,
 	}, nil
 }
 
+// SetState sets the state of the light
 func (c *LightRepository) SetState(state entity.LightState) (hasChanges bool, err error) {
 	tx, err := c.conn.Get()
 	if err != nil {
