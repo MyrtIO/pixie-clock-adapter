@@ -1,22 +1,35 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
-	"pixie_adapter/internal/controller/http"
-	"pixie_adapter/internal/usecase"
+	"pixie_adapter/internal/config"
+	"pixie_adapter/internal/controller/mqtt"
+	"pixie_adapter/internal/repository"
+	"pixie_adapter/internal/worker"
 	"pixie_adapter/pkg/pixie"
 
 	"github.com/MyrtIO/myrtio-go/serial"
 )
 
 type Application struct {
-	service *http.Service
+	mqtt   *mqtt.Controller
+	runner *worker.Runner
 }
 
 // New initializes a new Application.
-func New(portPath string, baudRate int) *Application {
+func New(configPath string) *Application {
+	config, err := config.New(configPath)
+	if err != nil {
+		log.Panic(err)
+	}
+	if config == nil || config.Host == "" {
+		log.Panicf("Config is not loaded: %s", configPath)
+	}
+
+	portPath := config.PortPath
 	if portPath == "" {
 		paths, err := serial.Discover()
 		if err != nil {
@@ -28,21 +41,44 @@ func New(portPath string, baudRate int) *Application {
 		}
 		portPath = paths[0]
 	}
+	baudRate := config.BaudRate
+	if baudRate == 0 {
+		baudRate = 28800
+	}
 
-	p := pixie.NewConnection(portPath, baudRate)
-	u := usecase.New()
-	s := http.NewService(u, p)
+	conn := pixie.NewConnection(portPath, baudRate)
+	repos := repository.New(conn)
+	mqtt := mqtt.New(config, repos)
+
+	if repos.System().IsConnected() {
+		log.Println("Clock is connected")
+	} else {
+		log.Println("Clock is not connected")
+	}
+
+	runner := worker.NewRunner(
+		worker.NewTimeSync(repos),
+		worker.NewPing(repos),
+	)
+
 	return &Application{
-		service: s,
+		mqtt:   mqtt,
+		runner: runner,
 	}
 }
 
 // Start is a method of the Application struct that starts the application.
 func (app *Application) Start() error {
-	return app.service.Start()
-}
+	ctx := context.Background()
+	_, cancel := context.WithCancel(ctx)
 
-// SetPort sets the port for the Application.
-func (app *Application) SetPort(port int) {
-	app.service.SetPort(port)
+	defer cancel()
+
+	app.runner.Run(ctx.Done())
+	err := app.mqtt.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

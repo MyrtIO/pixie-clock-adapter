@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"pixie_adapter/internal/app"
 	"pixie_adapter/pkg/process"
@@ -33,26 +34,17 @@ func Execute() {
 	}
 }
 
-var baudRate int
-var portPath string
-var httpPort int
+var configPath string
 
 func init() {
+	homeDir := os.Getenv("HOME")
+
 	rootCmd.PersistentFlags().StringVarP(
-		&portPath,
-		"port", "p",
-		"",
-		"Port (starting with /dev/)")
-	rootCmd.PersistentFlags().IntVarP(
-		&baudRate,
-		"baud", "b",
-		28800,
-		"Set baud/speed")
-	rootCmd.PersistentFlags().IntVarP(
-		&httpPort,
-		"http-port", "t",
-		17085,
-		"HTTP port where API will be available")
+		&configPath,
+		"config", "c",
+		fmt.Sprintf("%s/.config/%s/config.yaml", homeDir, AppName),
+		"The path to the configuration file",
+	)
 }
 
 func getDaemon() process.Daemon {
@@ -60,7 +52,6 @@ func getDaemon() process.Daemon {
 }
 
 func getService() *app.Application {
-	app := app.New(portPath, baudRate)
-	app.SetPort(httpPort)
+	app := app.New(configPath)
 	return app
 }
