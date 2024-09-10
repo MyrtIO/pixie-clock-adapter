@@ -76,7 +76,6 @@ func (h *Handler) Router(c mqtt.Client) *Router {
 	router.Report(h.HandleReportLightState, stateReportInterval)
 	router.Report(h.HandleReportConfig, configReportInterval)
 	router.Report(h.HandleReportAvailability, availabilityCheckInterval)
-
 	return router
 }
 

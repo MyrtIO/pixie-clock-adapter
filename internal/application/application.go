@@ -52,7 +52,6 @@ func New(configPath string) (*Application, error) {
 
 	repos := repository.New(conn)
 	mqtt := mqtt.New(config, repos)
-
 	runner := worker.NewRunner(
 		worker.NewTimeSync(repos),
 	)
