@@ -1,16 +1,15 @@
-VENV_PATH = ./venv
-VENV = . $(VENV_PATH)/bin/activate;
-GC = go build -ldflags="-s -w" -trimpath
+GIT_COMMIT = $(shell git rev-parse --short HEAD)
+VERSION_FLAG = -X pixie_adapter/internal/config.Version=$(GIT_COMMIT)
+GC = go build -ldflags="-s -w $(VERSION_FLAG)" -trimpath
 
 .PHONY: configure
 configure:
-	rm -rf "$(VENV_PATH)"
-	python3.11 -m venv "$(VENV_PATH)"
-	$(VENV) pip install -r requirements.txt
+	go mod tidy
 
 .PHONY: build
 build:
-	$(GC) -o ./build/pixie-adapter pixie-adapter.go
+	@echo "building..."
+	@$(GC) -o ./build/pixie-adapter pixie-adapter.go
 
 .PHONY: install
 install:

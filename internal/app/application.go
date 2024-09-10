@@ -6,6 +6,7 @@ import (
 	"os"
 	"pixie_adapter/internal/config"
 	"pixie_adapter/internal/controller/mqtt"
+	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/internal/repository"
 	"pixie_adapter/internal/worker"
 	"pixie_adapter/pkg/pixie"
@@ -29,26 +30,7 @@ func New(configPath string) *Application {
 	if config == nil || config.Host == "" {
 		log.Panicf("Config is not loaded: %s", configPath)
 	}
-
-	portPath := config.Serial.Port
-	if portPath == "" {
-		paths, err := serial.Discover()
-		if err != nil {
-			log.Panic(err)
-		}
-		if len(paths) == 0 {
-			log.Println("Serial devices is not found")
-			os.Exit(1)
-		}
-		portPath = paths[0]
-		log.Printf("Serial device is found at %s", portPath)
-	}
-	baudRate := config.BaudRate
-	if baudRate == 0 {
-		baudRate = 28800
-	}
-
-	conn := pixie.NewConnection(portPath, baudRate)
+	conn := getConnection(config.Serial.Port, config.Serial.BaudRate)
 	repos := repository.New(conn)
 	mqtt := mqtt.New(config, repos)
 
@@ -61,6 +43,27 @@ func New(configPath string) *Application {
 		runner: runner,
 		repos:  repos,
 	}
+}
+
+func getConnection(
+	portPath string,
+	baudRate int,
+) interfaces.TransportProvider {
+	if portPath != "" {
+		return pixie.NewConnection(portPath, baudRate)
+	}
+	paths, err := serial.Discover()
+	if err != nil {
+		log.Panicf("Failed to discover serial devices: %s", err)
+	}
+	if len(paths) == 0 {
+		log.Println("Supported serial device is not found")
+		log.Println("Try specifying the port path in the config file")
+		os.Exit(1)
+	}
+	selectedPort := paths[0]
+	log.Printf("Supported serial device is found at %s", selectedPort)
+	return pixie.NewConnection(selectedPort, baudRate)
 }
 
 // Start is a method of the Application struct that starts the application.

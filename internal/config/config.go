@@ -52,6 +52,10 @@ func New(path string) (*Config, error) {
 		return nil, err
 	}
 
+	if cfg.MQTT.Port == 0 {
+		cfg.MQTT.Port = 1883
+	}
+
 	return cfg, nil
 }
 

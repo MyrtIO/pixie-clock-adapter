@@ -4,7 +4,7 @@ This repository contains a service that allows you to integrate [Pixie Clock](ht
 
 ## Usage
 
-First of all, install a server on your computer that is connected to Pixie Clock.
+First of all, install an adapter on your computer that is connected to Pixie Clock.
 
 ```sh
 make build
@@ -37,7 +37,7 @@ pixie-adapter start
 
 Service provides the following topics:
 
-- `homeassistant/light/pixie_clock_light/config` — for Home Assistant discovery
-- `myrt/pixie/light/set` — for setting light state
-- `myrt/pixie/light` — for getting light state
-- `myrt/pixie/light/available` — for checking light availability
+- `homeassistant/light/pixie_clock_light/config` — for Home Assistant discovery.
+- `myrt/pixie/light/set` — for setting light state.
+- `myrt/pixie/light` — for getting light state.
+- `myrt/pixie/light/available` — for checking light availability.
