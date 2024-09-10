@@ -3,7 +3,7 @@ package worker
 import (
 	"log"
 	"pixie_adapter/internal/interfaces"
-	"pixie_adapter/pkg/timing"
+	"pixie_adapter/pkg/job"
 )
 
 // Runner runs the workers
@@ -21,7 +21,7 @@ func NewRunner(workers ...interfaces.Worker) *Runner {
 // Run workers
 func (r *Runner) Run(stop <-chan struct{}) {
 	for _, w := range r.workers {
-		interval := timing.NewInterval(w.Interval(), w.Run)
+		interval := job.NewInterval(w.Run, w.Interval())
 		log.Printf("Starting %s worker\n", w.Name())
 		interval.Start(stop)
 	}

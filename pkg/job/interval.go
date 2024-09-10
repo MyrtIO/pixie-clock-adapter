@@ -1,4 +1,4 @@
-package timing
+package job
 
 import (
 	"time"
@@ -6,15 +6,17 @@ import (
 
 // Interval runs a function periodically
 type Interval struct {
-	Delay  time.Duration
-	Handle func()
+	Period   time.Duration
+	Handle   func()
+	RunFirst bool
 }
 
 // NewInterval creates a new interval
-func NewInterval(delay time.Duration, handle func()) *Interval {
+func NewInterval(handle func(), period time.Duration) *Interval {
 	i := &Interval{
-		Delay:  delay,
-		Handle: handle,
+		Period:   period,
+		Handle:   handle,
+		RunFirst: true,
 	}
 	return i
 }
@@ -22,10 +24,12 @@ func NewInterval(delay time.Duration, handle func()) *Interval {
 // Start starts interval loop. Loop should exit on close event
 func (i *Interval) Start(stop <-chan struct{}) {
 	go func() {
-		i.Handle()
+		if i.RunFirst {
+			i.Handle()
+		}
 		for {
 			select {
-			case <-time.After(i.Delay):
+			case <-time.After(i.Period):
 				i.Handle()
 			case <-stop:
 				return

@@ -2,7 +2,7 @@ package mqtt
 
 import (
 	"log"
-	"pixie_adapter/pkg/timing"
+	"pixie_adapter/pkg/job"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -11,7 +11,7 @@ import (
 // Router routes MQTT messages
 type Router struct {
 	cancel  chan struct{}
-	updates []*timing.Interval
+	updates []*job.Interval
 	routes  map[string]mqtt.MessageHandler
 	qos     byte
 	client  mqtt.Client
@@ -38,9 +38,9 @@ func (r *Router) OnTopicUpdate(topic string, handler mqtt.MessageHandler) {
 
 // Report registers a handler for a topic with a given interval
 func (r *Router) Report(handler func(mqtt.Client), interval time.Duration) {
-	r.updates = append(r.updates, timing.NewInterval(interval, func() {
+	r.updates = append(r.updates, job.NewInterval(func() {
 		handler(r.client)
-	}))
+	}, interval))
 }
 
 // Start starts the router
