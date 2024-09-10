@@ -19,7 +19,10 @@ var runCmd = &cobra.Command{
 			fmt.Println("Application is running in background. Stop it, before run")
 			os.Exit(1)
 		}
-		panic(s.Start())
+		err := s.Start()
+		if err != nil {
+			fmt.Println("Error while starting application:", err.Error())
+		}
 	},
 }
 

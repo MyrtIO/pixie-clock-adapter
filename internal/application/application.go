@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"pixie_adapter/internal/config"
 	"pixie_adapter/internal/controller/mqtt"
 	"pixie_adapter/internal/interfaces"
 	"pixie_adapter/internal/repository"
 	"pixie_adapter/internal/worker"
 	"pixie_adapter/pkg/pixie"
+	"syscall"
 
 	"github.com/MyrtIO/myrtio-go/serial"
 )
@@ -63,22 +66,27 @@ func New(configPath string) (*Application, error) {
 
 // Start is a method of the Application struct that starts the application.
 func (a *Application) Start() error {
-	ctx := context.Background()
-	_, cancel := context.WithCancel(ctx)
-
-	defer cancel()
-
 	if a.repos.System().IsConnected() {
 		log.Println("Clock is connected")
 	} else {
 		log.Println("Clock is not connected")
 	}
 
-	a.runner.Run(ctx.Done())
-	err := a.mqtt.Start(ctx)
-	if err != nil {
-		return err
-	}
+	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(ctx,
+		syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	defer cancel()
 
+	a.runner.Run(ctx.Done())
+
+	go func() {
+		err := a.mqtt.Start(ctx)
+		if err != nil {
+			log.Printf("Failed to start MQTT: %s", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Stopping application...")
 	return nil
 }
