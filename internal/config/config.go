@@ -56,6 +56,10 @@ func New(path string) (*Config, error) {
 		cfg.MQTT.Port = 1883
 	}
 
+	if cfg.Serial.BaudRate == 0 {
+		cfg.Serial.BaudRate = 28800
+	}
+
 	return cfg, nil
 }
 
