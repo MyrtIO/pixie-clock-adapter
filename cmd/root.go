@@ -3,8 +3,9 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"pixie_adapter/internal/app"
+	"pixie_adapter/internal/application"
 	"pixie_adapter/internal/config"
 	"pixie_adapter/pkg/process"
 
@@ -43,7 +44,10 @@ func getDaemon() process.Daemon {
 	return process.NewDaemon(config.PackageName)
 }
 
-func getService() *app.Application {
-	app := app.New(configPath)
+func getApplication() *application.Application {
+	app, err := application.New(configPath)
+	if err != nil {
+		log.Fatalf("failed to create application: %s", err)
+	}
 	return app
 }

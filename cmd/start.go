@@ -13,7 +13,7 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts the application in the background",
 	Run: func(_ *cobra.Command, _ []string) {
-		s := getService()
+		s := getApplication()
 		d := getDaemon()
 		if d.Running() {
 			fmt.Println("Application is already running in background.")

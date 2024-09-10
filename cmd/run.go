@@ -13,7 +13,7 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Runs the application in the current process",
 	Run: func(_ *cobra.Command, _ []string) {
-		s := getService()
+		s := getApplication()
 		d := getDaemon()
 		if d.Running() {
 			fmt.Println("Application is running in background. Stop it, before run")
