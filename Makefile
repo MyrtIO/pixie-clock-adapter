@@ -9,12 +9,11 @@ configure:
 .PHONY: build
 build:
 	@echo "building..."
-	@$(GC) -o ./build/pixie-adapter pixie-adapter.go
+	@$(GC) .
 
 .PHONY: install
-install:
-	sudo rm -f /usr/local/bin/pixie-adapter
-	sudo cp ./build/pixie-adapter /usr/local/bin/pixie-adapter
+install: build
+	go install .
 
 .PHONY: lint
 lint:
